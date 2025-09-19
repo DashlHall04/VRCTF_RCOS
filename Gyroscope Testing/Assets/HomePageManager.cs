@@ -11,6 +11,7 @@ public class HomePageManager : MonoBehaviour
     public GameObject scenario1Button;
     public GameObject scenario2Button;
     public GameObject scenario3Button;
+    public GameObject scenario4Button;
     public GameObject proceedButton;
     public GameObject backButton;
 
@@ -18,9 +19,10 @@ public class HomePageManager : MonoBehaviour
     private string scenario1Instructions = "Find a way to log in to the computer.\n\nSee what you can do to objects in the room.";
     private string scenario2Instructions = "Scenario 2 instructions.";
     private string scenario3Instructions = "Scenario 3 instructions. ";
+    private string scenario4Instructions = "Scenario 4 instructions. ";
 
     private string selectedScenario = ""; // Track which scenario was clicked
-    
+
     private GameObject player;
 
     void Start()
@@ -49,6 +51,13 @@ public class HomePageManager : MonoBehaviour
     {
         selectedScenario = "Scenario3";
         mainText.text = scenario3Instructions;
+        ToggleScenarioButtons(false);
+        ShowProceedAndBack(true);
+    }
+    public void OnScenario4Clicked()
+    {
+        selectedScenario = "Scenario4";
+        mainText.text = scenario4Instructions;
         ToggleScenarioButtons(false);
         ShowProceedAndBack(true);
     }
@@ -85,6 +94,7 @@ public class HomePageManager : MonoBehaviour
         // Uncomment when scenarios are ready
         scenario2Button.SetActive(state);
         scenario3Button.SetActive(state);
+        scenario4Button.SetActive(state);
     }
 
     private void ShowProceedAndBack(bool state)
@@ -92,7 +102,7 @@ public class HomePageManager : MonoBehaviour
         proceedButton.SetActive(state);
         backButton.SetActive(state);
     }
-    
+
     IEnumerator LoadScene(String sceneName)
     {
         yield return new WaitForSeconds(0.5f);
@@ -119,18 +129,20 @@ public class HomePageManager : MonoBehaviour
                 break;
             }
         }
-        
+
         if (currentScene.IsValid())
-        {            
+        {
             SceneManager.MoveGameObjectToScene(player, newScene);
             AsyncOperation asyncUnload = SceneManager.UnloadSceneAsync(currentScene);
             asyncUnload.completed += OnSceneUnloaded;
-        } else {
+        }
+        else
+        {
             // An error occurred
             Debug.Log("Scene is not Valid");
         }
     }
-    
+
     private void OnSceneUnloaded(AsyncOperation obj)
     {
         FadeOutSquare_Static.setPhase(null, GameEnums.FadeOutSquare_PhaseEnum.FadeOut);
