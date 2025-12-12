@@ -1,42 +1,47 @@
-using System.Collections;
 using UnityEngine;
 
-public class DoorController : MonoBehaviour
+public class FishDoorUnlocker : MonoBehaviour
 {
-    [Header("Door Movement")]
-    public Vector3 openOffset = new Vector3(0f, 3f, 0f);
-    public float openDuration = 1.2f;
+    [Header("References")]
+    public FishingController fishing;
+    public DoorController door;
 
-    private Vector3 _closedPos;
-    private bool _isOpen = false;
+    [Header("Correct Fish Rule")]
+    [Tooltip("If set, caught fish must have this Tag to open the door.")]
+    public string correctFishTag = "CorrectFish";
 
-    private void Awake()
+    [Tooltip("Optional: if set, caught fish name must contain this text (e.g., 'GoldenFish').")]
+    public string correctFishNameContains = "";
+
+    private bool _unlocked;
+
+    private void OnEnable()
     {
-        _closedPos = transform.position;
+        if (fishing != null)
+            fishing.OnFishCaught += HandleFishCaught;
     }
 
-    public void OpenDoor()
+    private void OnDisable()
     {
-        if (_isOpen) return;
-        _isOpen = true;
-
-        StopAllCoroutines();
-        StartCoroutine(OpenRoutine());
+        if (fishing != null)
+            fishing.OnFishCaught -= HandleFishCaught;
     }
 
-    private IEnumerator OpenRoutine()
+    private void HandleFishCaught(GameObject fish)
     {
-        Vector3 start = _closedPos;
-        Vector3 end = _closedPos + openOffset;
+        if (_unlocked || fish == null) return;
 
-        float t = 0f;
-        while (t < 1f)
-        {
-            t += Time.deltaTime / openDuration;
-            transform.position = Vector3.Lerp(start, end, t);
-            yield return null;
-        }
+        bool ok = true;
 
-        transform.position = end;
+        if (!string.IsNullOrEmpty(correctFishTag))
+            ok &= fish.CompareTag(correctFishTag);
+
+        if (!string.IsNullOrEmpty(correctFishNameContains))
+            ok &= fish.name.Contains(correctFishNameContains);
+
+        if (!ok) return;
+
+        _unlocked = true;
+        door.OpenDoor();
     }
 }

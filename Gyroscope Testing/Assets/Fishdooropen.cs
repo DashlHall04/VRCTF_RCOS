@@ -1,24 +1,39 @@
+using System.Collections;
 using UnityEngine;
 
-[RequireComponent(typeof(Collider))]
-public class FishUnlockTrigger : MonoBehaviour
+public class DoorController : MonoBehaviour
 {
-    [Header("Correct Fish")]
-    public string correctFishTag = "CorrectFish";
+    [Header("Door Movement")]
+    public Vector3 openOffset = new Vector3(0f, 3f, 0f);
+    public float openDuration = 1.2f;
 
-    [Header("Door")]
-    public DoorController door;
+    private Vector3 _closedPos;
+    private bool _isOpen;
 
-    private bool _triggered = false;
-
-    private void OnTriggerEnter(Collider other)
+    private void Awake()
     {
-        if (_triggered) return;
+        _closedPos = transform.position;
+    }
 
-        if (other.CompareTag(correctFishTag))
+    public void OpenDoor()
+    {
+        if (_isOpen) return;
+        _isOpen = true;
+
+        StopAllCoroutines();
+        StartCoroutine(OpenRoutine(_closedPos, _closedPos + openOffset));
+    }
+
+    private IEnumerator OpenRoutine(Vector3 start, Vector3 end)
+    {
+        float t = 0f;
+        while (t < 1f)
         {
-            _triggered = true;
-            door.OpenDoor();
+            t += Time.deltaTime / openDuration;
+            transform.position = Vector3.Lerp(start, end, t);
+            yield return null;
         }
+        transform.position = end;
     }
 }
+
