@@ -2,8 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+
 public class LightPatternPlayer : MonoBehaviour
 {
+    [Header("Correct Answer")]
+public int correctColorIndex = 0;
+public RewardController rewardController;
     [Header("Target Renderer")]
     public Renderer targetRenderer;
 
@@ -90,6 +94,15 @@ public class LightPatternPlayer : MonoBehaviour
             list.Add(Random.Range(0, 3));
         return list;
     }
+    public void TurnOffLights()
+{
+    if (targetRenderer == null) return;
+
+    targetRenderer.GetPropertyBlock(_mpb);
+    _mpb.SetColor("_BaseColor", Color.black);
+    _mpb.SetColor("_Color", Color.black);
+    targetRenderer.SetPropertyBlock(_mpb);
+}
 
     private void ApplyColorIndex(int idx)
     {
@@ -106,6 +119,10 @@ public class LightPatternPlayer : MonoBehaviour
         _mpb.SetColor("_BaseColor", c);   // URP/Lit
         _mpb.SetColor("_Color", c);       // Built-in/Standard fallback
         targetRenderer.SetPropertyBlock(_mpb);
+        if (idx == correctColorIndex && rewardController != null)
+{
+    rewardController.TriggerReward(idx);
+}
     }
 }
 
